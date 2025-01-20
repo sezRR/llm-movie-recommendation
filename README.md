@@ -22,18 +22,18 @@ bun run dev
 
 Run http://localhost:3000
 
-### Configuration
+## Configuration
 
 You can configure environment variables, the system prompts and model configuration as follows:
 
-#### Environment Variables
+### Environment Variables
 
 You can configure the following environment variables:
 
 -   `PORT` You can configure the port in the `.env` file.
 -   `OPENAI_API_KEY` You can configure the OpenAI API key in the `.env` file.
 
-#### System Prompts and Model Configuration:
+### System Prompts and Model Configuration:
 
 You can configure the system prompts and model configuration in the `instruction_conf.yaml` file or using `instruction_conf.json` file. Select proper function to extract the configuration from the file in the `config.ts` file.
 
