@@ -5,6 +5,15 @@ This is a simple movie recommendation system that uses the IMDb. It is built wit
 ## Todo
 
 -   [ ] Add data source for past movie recommendations by the system for the user
+-   [ ] Support for DeepSeek API
+-   [ ] Support for local installed models
+-   [ ] Add authorization for the API
+-   [ ] Add TUI with Golang
+-   [ ] Add database support for past recommendations
+-   [ ] Transition to FastAPI (?)
+-   [ ] Response streaming
+-   [ ] Support genres for the user
+-   [ ] Validate request body to match the schema
 
 ## Usage
 
