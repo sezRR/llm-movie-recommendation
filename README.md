@@ -14,6 +14,10 @@ This is a simple movie recommendation system that uses the IMDb. It is built wit
 -   [ ] Response streaming
 -   [ ] Support genres for the user
 -   [ ] Validate request body to match the schema
+-   Authentication
+    -   [ ] Auth.js
+-   Recommendation
+    -   [ ] Add different services for recommendation
 
 ## Usage
 
