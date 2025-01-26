@@ -2,13 +2,15 @@ import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { loadConfigYAML } from "./config";
 import { z } from "zod";
+import { validateEnv } from "./config/env";
 
 const pastRecommendations: Array<string> = ["tt0116282", "tt0116281", "tt0116283", "tt5290382", "tt2707408", "tt0286486"];
 
 const modelConfig = loadConfigYAML();
+const env = validateEnv();
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: env.OPENAI_API_KEY,
 });
 
 function validateMessageInput(message: string) {
