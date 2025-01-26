@@ -3,6 +3,9 @@ import recommendations from './endpoints/recommendations';
 import { openAPISpecs } from 'hono-openapi';
 import { Hono, type Context } from 'hono';
 import { Auth } from './auth';
+import { validateEnv } from './config/env';
+
+const env = validateEnv()
 
 const app = new Hono({ strict: false }).basePath("/");
 
@@ -11,7 +14,7 @@ app.get(
     openAPISpecs(app, {
         documentation: {
             info: { title: 'Hono API', version: '1.0.0', description: 'Greeting API' },
-            servers: [{ url: 'http://localhost:3000', description: 'Local Server' }],
+            servers: [{ url: `http://localhost:${env.PORT}`, description: 'Local Server' }],
         },
     })
 );

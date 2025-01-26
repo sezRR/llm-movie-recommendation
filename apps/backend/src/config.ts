@@ -24,3 +24,7 @@ export const loadConfigYAML = (fileName: string = "instruction_conf.yaml"): Inst
     const configContent = readFileSync(configPath, "utf-8");
     return parse(configContent) as InstructionConfig;
 }
+
+export const config = {
+    jwtExpiration: '1h', // You can adjust this value as needed
+};

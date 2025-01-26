@@ -1,0 +1,14 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "baseUrl": ".",
+        "paths": {
+            "@ai-recommender/shared/*": ["../../shared/dist/*"]
+        },
+        "types": ["node", "bun"]
+    },
+    "include": ["src/**/*"],
+    "references": [{ "path": "../../shared" }]
+}

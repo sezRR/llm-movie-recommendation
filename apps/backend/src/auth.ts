@@ -1,16 +1,31 @@
 import DecodedJWT from './schemas/auth/decoded-jwt'
-import { Context } from 'hono/dist/types/context'
-import { Hono } from 'hono'
+import { Context, Hono } from 'hono'
 import { createMiddleware } from 'hono/factory'
+import { validateEnv } from './config/env'
 
-function generateJWT(payload: string, secret: string, _expiresIn: string): string {
-    // TODO: Implement expiresIn
-    // FIX: field conventions
+function generateJWT(payload: object, secret: string, expiresIn: string): string {
     const header = { alg: 'HS256', typ: 'JWT' }
+    const issuedAt = Math.floor(Date.now() / 1000)
+    const expiration = issuedAt + parseExpiresIn(expiresIn)
+    const fullPayload = { ...payload, iat: issuedAt, exp: expiration }
     const encodedHeader = base64UrlEncode(JSON.stringify(header))
-    const encodedPayload = base64UrlEncode(payload)
+    const encodedPayload = base64UrlEncode(JSON.stringify(fullPayload))
     const signature = sign(`${encodedHeader}.${encodedPayload}`, secret)
     return `${encodedHeader}.${encodedPayload}.${signature}`
+}
+
+function parseExpiresIn(expiresIn: string): number {
+    const match = expiresIn.match(/^(\d+)([smhd])$/)
+    if (!match) throw new Error('Invalid expiresIn format')
+    const value = parseInt(match[1], 10)
+    const unit = match[2]
+    switch (unit) {
+        case 's': return value
+        case 'm': return value * 60
+        case 'h': return value * 3600
+        case 'd': return value * 86400
+        default: throw new Error('Invalid time unit')
+    }
 }
 
 function base64UrlEncode(str: string): string {
@@ -47,6 +62,14 @@ function decodeJWT(token: string): DecodedJWT | null {
     if (!encodedHeader || !encodedPayload) return null
     const header = JSON.parse(base64UrlDecode(encodedHeader))
     const payload = JSON.parse(base64UrlDecode(encodedPayload))
+
+    // Check if the token is expired
+    const currentTime = Math.floor(Date.now() / 1000)
+    if (payload.exp && currentTime > payload.exp) {
+        console.error('Token is expired')
+        return null
+    }
+
     return { header, payload }
 }
 
@@ -56,6 +79,12 @@ function base64UrlDecode(str: string): string {
     const paddedBase64 = base64 + '==='.slice(0, padding)
     return atob(paddedBase64)
 }
+
+function createPayload(email: string, name: string, picture: string, given_name: string) {
+    return { sub: email, name, picture, given_name }
+}
+
+const env = validateEnv()
 
 const app = new Hono();
 
@@ -71,9 +100,9 @@ app.get('/callback/google', async (c: Context) => {
         const tokenEndpoint = new URL('https://accounts.google.com/o/oauth2/token')
         tokenEndpoint.searchParams.set('code', code)
         tokenEndpoint.searchParams.set('grant_type', 'authorization_code')
-        tokenEndpoint.searchParams.set('client_id', process.env.GOOGLE_ID)
-        tokenEndpoint.searchParams.set('client_secret', process.env.GOOGLE_SECRET)
-        tokenEndpoint.searchParams.set('redirect_uri', process.env.GOOGLE_REDIRECT)
+        tokenEndpoint.searchParams.set('client_id', env.GOOGLE_ID)
+        tokenEndpoint.searchParams.set('client_secret', env.GOOGLE_SECRET)
+        tokenEndpoint.searchParams.set('redirect_uri', env.GOOGLE_REDIRECT)
 
         const tokenResponse = await fetch(tokenEndpoint.toString(), {
             method: 'POST',
@@ -92,13 +121,13 @@ app.get('/callback/google', async (c: Context) => {
         const { email, name, picture, given_name } = userInfo
 
         // Create a JWT, store it in a cookie
-        const tokenPayload = JSON.stringify({ email, name, picture, given_name })
-        const cookie = generateJWT(tokenPayload, process.env.AUTH_SECRET, '1h')
+        const tokenPayload = createPayload(email, name, picture, given_name)
+        const cookie = generateJWT(tokenPayload, env.AUTH_SECRET, env.JWT_EXPIRATION)
 
         return new Response(null, {
             status: 302,
             headers: {
-                Location: '/',
+                Location: 'http://localhost:5173/', // TODO: CHANGE THIS TO THE FRONTEND URL
                 'Set-Cookie': `custom_auth=${cookie}; Path=/; HttpOnly`,
             },
         })
@@ -111,8 +140,8 @@ app.get('/callback/google', async (c: Context) => {
 // Google OAuth login route
 app.get('/google', (_) => {
     const authorizationUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
-    authorizationUrl.searchParams.set('client_id', process.env.GOOGLE_ID)
-    authorizationUrl.searchParams.set('redirect_uri', process.env.GOOGLE_REDIRECT)
+    authorizationUrl.searchParams.set('client_id', env.GOOGLE_ID)
+    authorizationUrl.searchParams.set('redirect_uri', env.GOOGLE_REDIRECT)
     authorizationUrl.searchParams.set('prompt', 'consent')
     authorizationUrl.searchParams.set('response_type', 'code')
     authorizationUrl.searchParams.set('scope', 'openid email profile')
