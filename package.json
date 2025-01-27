@@ -3,21 +3,13 @@
     "version": "1.0.0",
     "private": true,
     "workspaces": [
-        "apps/*",
+        "apps/backend",
+        "apps/frontend",
         "shared"
     ],
     "scripts": {
         "backend": "cd apps/backend && bun run dev",
         "frontend": "cd apps/frontend && bun run dev",
         "build-shared": "cd shared && bun run build"
-    },
-    "devDependencies": {
-        "@types/bun": "^1.2.0",
-        "autoprefixer": "^10.4.20",
-        "postcss": "^8.5.1",
-        "tailwindcss": "^4.0.0"
-    },
-    "dependencies": {
-        "hono": "^4.6.19"
     }
 }

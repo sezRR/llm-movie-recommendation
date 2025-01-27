@@ -5,6 +5,7 @@
         "build": "bunx tsc --project tsconfig.json"
     },
     "dependencies": {
+        "@ai-recommender/shared": "workspace:*",
         "@auth/core": "^0.37.4",
         "@hono/auth-js": "^1.0.15",
         "@hono/swagger-ui": "^0.5.0",
