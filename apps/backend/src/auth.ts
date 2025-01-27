@@ -127,7 +127,7 @@ app.get('/callback/google', async (c: Context) => {
         return new Response(null, {
             status: 302,
             headers: {
-                Location: 'http://localhost:5173/', // TODO: CHANGE THIS TO THE FRONTEND URL
+                Location: 'http://localhost:5173/', // TODO: FIX BACKEND BUILD ERROR
                 'Set-Cookie': `custom_auth=${cookie}; Path=/; HttpOnly`,
             },
         })

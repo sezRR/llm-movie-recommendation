@@ -3,3 +3,4 @@ node_modules/
 .env
 instruction_conf.yaml
 instruction_conf.json
+dist/
